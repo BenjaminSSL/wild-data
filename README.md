@@ -1,10 +1,13 @@
 # Project Structure
 
+```text
 wild-data/
-├── src/ # Source code
-    └── <python scripts>
-├── data/ # Data folder
+├── src/
+│   └── <python scripts>
+├── data/
 │   ├── august/
-│   │   └── raw/       # Original json files collected in August
+│   │   └── raw/
 │   │   └── .gitignore
-└── README.md 
+└── README.md
+
+
