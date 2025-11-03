@@ -1,5 +1,17 @@
-# Ignore CSV files in data/august/
-data/august/*.csv
-
 # Ignore macOS system files
 .DS_Store
+
+# Ignore IDE/editor folders
+.vscode/
+.idea/
+
+# Ignore environment folders
+.venv/
+venv/
+env/
+.env
+
+# Ignore Python cache files
+__pycache__/
+
+data/
