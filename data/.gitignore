@@ -1,3 +1,8 @@
 data/
 august/
 .DS_Store
+cars/
+group.csv
+*.html
+*.png
+output.csv
