@@ -35,7 +35,6 @@ def main():
     # Convert 'file_datetime' to datetime and sort the DataFrame
     df["file_datetime"] = pd.to_datetime(df["file_datetime"], errors="coerce")
     df = df.sort_values(['licencePlate', 'file_datetime']).reset_index(drop=True)
-
     logger.info("Converted 'file_datetime' to datetime and sorted the DataFrame")
 
     # Extract numeric part of 'zipCode', convert to float, handle missing values, and convert to int
@@ -69,8 +68,8 @@ def main():
         "licencePlate": df.loc[start_idx, "licencePlate"].to_numpy(),
         "start_time":   df.loc[start_idx, "file_datetime"].to_numpy(),
         "end_time":     df.loc[end_idx,   "file_datetime"].to_numpy(),
-        "start_lat":    df.loc[start_idx, "lat"].to_numpy(),
-        "start_lon":    df.loc[start_idx, "lon"].to_numpy(),
+        "lat":    df.loc[start_idx, "lat"].to_numpy(),
+        "lon":    df.loc[start_idx, "lon"].to_numpy(),
         "parking_time": np.round(
             (df.loc[end_idx, "file_datetime"].to_numpy() -
              df.loc[start_idx, "file_datetime"].to_numpy()) /
@@ -97,6 +96,7 @@ def main():
     grouped["hour_of_day_end"] = pd.to_datetime(grouped["end_time"]).dt.hour
 
 
+    grouped = grouped[grouped["parking_time"] > 0].reset_index(drop=True)
 
     logger.info("Extracted day_of_week and hour_of_day from start_time")
 
@@ -161,7 +161,7 @@ def postcode_mapping(zip_code):
         11: {"name": "Vanlose",         "zip_from": 2720, "zip_to": 2720, "setting": 2720},
         12: {"name": "Frederiksberg C", "zip_from": 1800, "zip_to": 2000, "setting": 2000},
         13: {"name": "Hellerup",        "zip_from": 2900, "zip_to": 2900, "setting": 2900},
-        14: {"name": "Soborg",        "zip_from": 2860, "zip_to": 2860, "setting": 2860},
+        14: {"name": "Soborg",          "zip_from": 2860, "zip_to": 2860, "setting": 2860},
         15: {"name": "Herlev",          "zip_from": 2730, "zip_to": 2730, "setting": 2730},
         16: {"name": "Skovlunde",       "zip_from": 2740, "zip_to": 2740, "setting": 2740},
         17: {"name": "Ballerup",        "zip_from": 2750, "zip_to": 2750, "setting": 2750},
@@ -169,11 +169,16 @@ def postcode_mapping(zip_code):
         19: {"name": "Hvidovre",        "zip_from": 2650, "zip_to": 2650, "setting": 2650},
         20: {"name": "Albertslund",     "zip_from": 2620, "zip_to": 2620, "setting": 2620},
         21: {"name": "Taastrup",        "zip_from": 2630, "zip_to": 2630, "setting": 2630},
-        22: {"name": "Brondby Strand","zip_from": 2660, "zip_to": 2660, "setting": 2660},
+        22: {"name": "Brondby Strand",  "zip_from": 2660, "zip_to": 2660, "setting": 2660},
         23: {"name": "Kgs. Lyngby",     "zip_from": 2800, "zip_to": 2800, "setting": 2800},
         24: {"name": "Virum",           "zip_from": 2830, "zip_to": 2830, "setting": 2830},
-        25: {"name": "Dyssegoord",     "zip_from": 2870, "zip_to": 2870, "setting": 2870},
-        26: {"name": "Gentofte",        "zip_from": 2820, "zip_to": 2820, "setting": 2820}
+        25: {"name": "Dyssegoord",      "zip_from": 2870, "zip_to": 2870, "setting": 2870},
+        26: {"name": "Gentofte",        "zip_from": 2820, "zip_to": 2820, "setting": 2820},
+        27: {"name": "Rodovre",         "zip_from": 2610, "zip_to": 2610, "setting": 2610},
+        28: {"name": "Kastrup",         "zip_from": 2770, "zip_to": 2770, "setting": 2770},
+        29: {"name": "Charlottelund",   "zip_from": 2920, "zip_to": 2920, "setting": 2920},
+        30: {"name": "Klampenborg",     "zip_from": 2930, "zip_to": 2930, "setting": 2930},
+        31: {"name": "Bagsvaerd",       "zip_from": 2880, "zip_to": 2880, "setting": 2880}
     }   
     
     for code, info in post_codes.items():
