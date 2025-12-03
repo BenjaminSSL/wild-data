@@ -7,12 +7,13 @@ import folium
 
 KMS_PER_RADIAN = 6371.0088
 ROUND_DECIMALS = 10
-EPS_KM = 0.3
+EPS_KM = 0.2
 MIN_CLUSTER_SIZE_DEFAULT = 20
 
 CPH_AIRPORT_COORDS = (55.630397, 12.648908)
 BILLUND_AIRPORT_COORDS = (55.740020, 9.151920)
 AARHUS_AIRPORT_COORDS = (56.303878, 10.619709)
+AARHUS_SEAPLANE_COORDS = (56.150649, 10.253114)
 def main():
     parser = argparse.ArgumentParser("Detect hotspots in car pickup locations using DBSCAN clustering.")
     parser.add_argument(
@@ -26,18 +27,18 @@ def main():
 
     df = pd.read_csv(
         args.input,
-        usecols=["start_lat", "start_lon"],
-        dtype={"start_lat": "float32", "start_lon": "float32"},
+        usecols=["lat", "lon"],
+        dtype={"lat": "float32", "lon": "float32"},
     )
 
-    df = df.dropna(subset=["start_lat", "start_lon"])
+    df = df.dropna(subset=["lat", "lon"])
     df = df[
-        (df["start_lat"].between(-90, 90)) &
-        (df["start_lon"].between(-180, 180))
+        (df["lat"].between(-90, 90)) &
+        (df["lon"].between(-180, 180))
     ].reset_index(drop=True)
 
-    lat = df["start_lat"].to_numpy(copy=False)
-    lon = df["start_lon"].to_numpy(copy=False)
+    lat = df["lat"].to_numpy(copy=False)
+    lon = df["lon"].to_numpy(copy=False)
 
     lat_r = np.round(lat, ROUND_DECIMALS)
     lon_r = np.round(lon, ROUND_DECIMALS)
@@ -80,15 +81,15 @@ def main():
     print("Rows:", len(df))
     print("Clusters found:", n_clusters)
 
-    center_lat = float(df["start_lat"].mean())
-    center_lon = float(df["start_lon"].mean())
+    center_lat = float(df["lat"].mean())
+    center_lon = float(df["lon"].mean())
     m = folium.Map(location=[center_lat, center_lon], zoom_start=12, tiles="OpenStreetMap")
 
     clustered = df[df["cluster"] != -1]
  
 
     group = clustered.groupby("cluster", sort=False)
-    centers = group[["start_lat", "start_lon"]].mean()
+    centers = group[["lat", "lon"]].mean()
     sizes = group.size().rename("count")
     centers = centers.join(sizes).reset_index()
 
@@ -103,19 +104,20 @@ def main():
         # Color blue if close to any airport, else red
         color  = "blue" if any(
             np.sqrt(
-                (row["start_lat"] - airport[0])**2 +
-                (row["start_lon"] - airport[1])**2
+                (row["lat"] - airport[0])**2 +
+                (row["lon"] - airport[1])**2
             ) < margin
             for airport, margin in [
                 (CPH_AIRPORT_COORDS,0.005),
                 (BILLUND_AIRPORT_COORDS,0.05),
                 (AARHUS_AIRPORT_COORDS,0.05),
+                (AARHUS_SEAPLANE_COORDS,0.02),
             ]
         ) else "green"
 
         
         folium.CircleMarker(
-            location=[float(row["start_lat"]), float(row["start_lon"])],
+            location=[float(row["lat"]), float(row["lon"])],
             radius=radius,
             color=color,
             fill=True,

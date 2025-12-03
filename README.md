@@ -6,8 +6,6 @@ This project was created by:
 - Benjamin Storm Larsen (bsla@itu.dk)
 - Florentina Fabregas Alippi (flfa@itu.dk)
 - Miina Johanna Mäkinen (miin@itu.dk)
-- Raivis Lickrastins (rail@itu.dk)
-
 
 ## Scraping
 The scraper is built with GoLang and is found in the `scraper/` directory. To run it you need to have Go installed on your machine and the `awscli` configured with your AWS credentials, and update the S3 bucket name and region in the `main.go` file. To run it simply use the command:
@@ -26,7 +24,7 @@ The data processing scripts are found in the `src/` directory. The main scripts 
 - `build_csv.py`: This script processes the raw data files and builds a consolidated CSV file
 - `data_transformation.py`: This script performs data transformation and groups the data to single trips.
 
-The
 
 
-
+## Artifacts
+The `artifacts/` directory contains generated files such as maps and visualizations created.
