@@ -21,7 +21,7 @@ chmod +x scraper
 
 
 ## Pre-requisites
-The data processing and analysis scripts are written in Python 3.11.14. It is recommended to use a virtual environment. You can create and activate a virtual environment using the following commands:
+The data processing and analysis scripts are written in Python 3.10. It is recommended to use a virtual environment. You can create and activate a virtual environment using the following commands:
 
 ```bash
 python3 -m venv venv
