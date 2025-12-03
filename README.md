@@ -20,19 +20,13 @@ go build -o scraper main.go
 chmod +x scraper
 ./scraper
 ```
-<!-- 
 
-```text
-wild-data/
-├── src/    
-│   └── <python scripts>   # build_csv.py
-│
-├── data/
-│   ├── august/
-│   │   └── raw/   # here the json files for the period of 1-21 august
-│   │   └── combined_output.csv 
-│   │   └── .gitignore
-└── README.md
- -->
+## Data Processing
+The data processing scripts are found in the `src/` directory. The main scripts are:
+- `build_csv.py`: This script processes the raw data files and builds a consolidated CSV file
+- `data_transformation.py`: This script performs data transformation and groups the data to single trips.
+
+The
+
 
 

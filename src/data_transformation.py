@@ -42,12 +42,10 @@ def main():
     df["zipCode"] = (df["zipCode"].astype(str).str.extract(r'(\d{4})').astype(float).fillna(-1).astype(int))
 
     thr = 1e-3
-    time_thr = pd.Timedelta(minutes=10)
 
     lat  = df['lat'].to_numpy()
     lon  = df['lon'].to_numpy()
     plate= df['licencePlate'].to_numpy()
-    time = df['file_datetime'].to_numpy()
 
     # Plate change
     plate_change = np.r_[True, plate[1:] != plate[:-1]]
@@ -58,12 +56,8 @@ def main():
         (np.abs(lon[1:] - lon[:-1]) > thr)
     ]
 
-    # Time change
-    time_diff = np.diff(time, prepend=time[0])
-    time_change = time_diff > time_thr
-
     # Any boundary event
-    boundary = plate_change | move_change | time_change
+    boundary = plate_change | move_change
     b_idx = np.flatnonzero(boundary)
 
     # Closing segments
@@ -77,7 +71,7 @@ def main():
         "end_time":     df.loc[end_idx,   "file_datetime"].to_numpy(),
         "start_lat":    df.loc[start_idx, "lat"].to_numpy(),
         "start_lon":    df.loc[start_idx, "lon"].to_numpy(),
-        "travel_time": np.round(
+        "parking_time": np.round(
             (df.loc[end_idx, "file_datetime"].to_numpy() -
              df.loc[start_idx, "file_datetime"].to_numpy()) /
              np.timedelta64(1, "m")
@@ -88,16 +82,21 @@ def main():
 
     logger.info("Built grouped DataFrame")
 
-    grouped[['car_model', 'car_type']] = grouped['vehicleTypeId'].apply(id_to_car_type).apply(pd.Series)
+    grouped['car_type'] = grouped['vehicleTypeId'].apply(id_to_car_type)
 
     logger.info("Mapped vehicleTypeId to car_model and car_type")
 
-    grouped['zipCode'] = grouped['zipCode'].apply(postcode_mapping)
+    grouped['area_name'] = grouped['zipCode'].apply(postcode_mapping)
 
 
     logger.info("Mapped zipCode to area codes")
-    grouped["day_of_week"] = pd.to_datetime(grouped["start_time"]).dt.day_name()
-    grouped["hour_of_day"] = pd.to_datetime(grouped["start_time"]).dt.hour
+    grouped["day_of_week_start"] = pd.to_datetime(grouped["start_time"]).dt.day_name()
+    grouped["hour_of_day_start"] = pd.to_datetime(grouped["start_time"]).dt.hour
+
+    grouped["day_of_week_end"] = pd.to_datetime(grouped["end_time"]).dt.day_name()
+    grouped["hour_of_day_end"] = pd.to_datetime(grouped["end_time"]).dt.hour
+
+
 
     logger.info("Extracted day_of_week and hour_of_day from start_time")
 
@@ -142,7 +141,7 @@ def id_to_car_type(vehicle_type_id):
         "109": {"model":"Renault Trafic E-Tech","type":"van"},
         "111": {"model":"Ford E-Transit","type":"van"}
     }
-    return car_types.get(vehicle_type_id, {"model":"Unknown","type":"Unknown"})
+    return car_types.get(vehicle_type_id)["type"] if vehicle_type_id in car_types else "unknown"
 
     
 
@@ -161,12 +160,26 @@ def postcode_mapping(zip_code):
         10: {"name": "Valby",           "zip_from": 2500, "zip_to": 2500, "setting": 2500},
         11: {"name": "Vanlose",         "zip_from": 2720, "zip_to": 2720, "setting": 2720},
         12: {"name": "Frederiksberg C", "zip_from": 1800, "zip_to": 2000, "setting": 2000},
-    }
+        13: {"name": "Hellerup",        "zip_from": 2900, "zip_to": 2900, "setting": 2900},
+        14: {"name": "Soborg",        "zip_from": 2860, "zip_to": 2860, "setting": 2860},
+        15: {"name": "Herlev",          "zip_from": 2730, "zip_to": 2730, "setting": 2730},
+        16: {"name": "Skovlunde",       "zip_from": 2740, "zip_to": 2740, "setting": 2740},
+        17: {"name": "Ballerup",        "zip_from": 2750, "zip_to": 2750, "setting": 2750},
+        18: {"name": "Glostrup",        "zip_from": 2600, "zip_to": 2600, "setting": 2600},
+        19: {"name": "Hvidovre",        "zip_from": 2650, "zip_to": 2650, "setting": 2650},
+        20: {"name": "Albertslund",     "zip_from": 2620, "zip_to": 2620, "setting": 2620},
+        21: {"name": "Taastrup",        "zip_from": 2630, "zip_to": 2630, "setting": 2630},
+        22: {"name": "Brondby Strand","zip_from": 2660, "zip_to": 2660, "setting": 2660},
+        23: {"name": "Kgs. Lyngby",     "zip_from": 2800, "zip_to": 2800, "setting": 2800},
+        24: {"name": "Virum",           "zip_from": 2830, "zip_to": 2830, "setting": 2830},
+        25: {"name": "Dyssegoord",     "zip_from": 2870, "zip_to": 2870, "setting": 2870},
+        26: {"name": "Gentofte",        "zip_from": 2820, "zip_to": 2820, "setting": 2820}
+    }   
     
     for code, info in post_codes.items():
         if info["zip_from"] <= zip_code <= info["zip_to"]:
-            return info["setting"]
-    return -1
+            return info["name"]
+    return "NOT_ANNOTATED"
 
 
 
