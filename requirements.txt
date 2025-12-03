@@ -2,3 +2,5 @@ pandas
 folium
 scikit-learn
 matplotlib
+statsmodels
+seaborn
