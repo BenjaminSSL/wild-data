@@ -92,6 +92,8 @@ def main():
     m_hours.save("artifacts/vehicle_heatmap_per_hour.html")
     print("Per-hour heatmap saved to artifacts/vehicle_heatmap_per_hour.html")
 
+    df = df[df["parking_time"] <= 2 * 24 * 60 * 60]
+
     pt = df["parking_time"].to_numpy() 
     lo, hi = np.percentile(pt, [5, 95])
     pt_clip = np.clip(pt, lo, hi)
